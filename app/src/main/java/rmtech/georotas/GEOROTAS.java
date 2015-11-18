@@ -1,5 +1,6 @@
 package rmtech.georotas;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -9,18 +10,27 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.SoapFault;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 public class GEOROTAS extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, Runnable {
 
-
+    private TextView listaCargas;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,40 +38,23 @@ public class GEOROTAS extends AppCompatActivity
         setContentView(R.layout.activity_georotas);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        listaCargas = (TextView) findViewById(R.id.textView_ListaCargas);
         ListView lc = (ListView) findViewById(R.id.listaDeCargas);
         FloatingActionButton novaCarga = (FloatingActionButton) findViewById(R.id.novaCarga);
 
         novaCarga.setOnClickListener(new View.OnClickListener() {
-
-
-
-
             @Override
+
             public void onClick(View view) {
+                run();
                 Snackbar.make(view, "Carregando Novas Cargas...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-
-//                for (int i=0;i<100;i++){
-//                    lista.add(i);
-//
-//                 }
-//
-//                 List teste = retornaLista(lista);
-//                int adaptadorLayout;
-
-//                adaptadorLayout = android.R.layout.simple_list_item_1;
-//                ArrayAdapter<Integer> adaptador = new ArrayAdapter<Integer>(this,adaptadorLayout,List);
-//                adaptador.notifyDataSetChanged();
-//                lc.setAdapter(adaptador);
-//                registerForContextMenu(lc);
             }
-
-
-
-
-
         });
+        //dialog = ProgressDialog.show(GEOROTAS.this,"Aguardar","Aguarde carregando dados...", true);
+
+        new Thread(GEOROTAS.this).start();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -74,14 +67,47 @@ public class GEOROTAS extends AppCompatActivity
     }
 
 
-    public List<Integer> retornaLista(ArrayList arr){
 
-        List list = new ArrayList();
-        list = arr;
+    @Override
+    public void run() {
+        carregarCargas();
+    }
+    private void carregarCargas() {
 
-        return list;
+        SoapObject soap = new SoapObject("http://www.termaco.com.br", "carrega");
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(soap);
+        Log.i("Termaco", "Chamando WebService para carregar cargas");
+        String url = "http://www.termaco.com.br/cargasmobile/cargasmobiledev.php?wsdl";
+
+        HttpTransportSE httpTransport = new HttpTransportSE(url);
+
+        try{
+            httpTransport.call("", envelope);
+            listaCargas.setText(envelope.getResponse().toString());
+            Object msg = envelope.getResponse();
+            Log.d("Termaco", "Dado: " + msg);
+            listaCargas.setText("teste");
+
+
+
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (SoapFault soapFault) {
+            soapFault.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            Log.e("Termaco", "erro de busca CEP!");
+        finish();
+        }
+
+
 
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -136,4 +162,6 @@ public class GEOROTAS extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

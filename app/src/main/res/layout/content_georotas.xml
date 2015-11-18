@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/lista_de_cargas"
-        android:id="@+id/textView"
+        android:id="@+id/textView_ListaCargas"
         android:layout_gravity="center" />
 
     <ListView
