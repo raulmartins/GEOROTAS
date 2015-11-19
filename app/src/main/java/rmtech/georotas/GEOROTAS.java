@@ -15,26 +15,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class GEOROTAS extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Runnable{
+        implements NavigationView.OnNavigationItemSelectedListener, Runnable {
+    private String respostaServce;
 
-    private TextView listaCargas;
+
+    private TextView text_viewlistaCargas;
 
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -44,18 +45,20 @@ public class GEOROTAS extends AppCompatActivity
         setContentView(R.layout.activity_georotas);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        listaCargas = (TextView) findViewById(R.id.textView_ListaCargas);
-        ListView lc = (ListView) findViewById(R.id.listaDeCargas);
+        text_viewlistaCargas = (TextView) findViewById(R.id.textView_ListaCargas);
+        //ListView lc = (ListView) findViewById(R.id.listaDeCargas);
         FloatingActionButton novaCarga = (FloatingActionButton) findViewById(R.id.novaCarga);
         novaCarga.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                text_viewlistaCargas.setText(respostaServce);
+
                 Snackbar.make(view, "Carregando Novas Cargas...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
-        //dialog = ProgressDialog.show(GEOROTAS.this,"Aguardar","Aguarde carregando dados...", false);
-       new Thread(GEOROTAS.this).start();
+
+        new Thread(GEOROTAS.this).start();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -68,83 +71,45 @@ public class GEOROTAS extends AppCompatActivity
     }
 
 
-
-    @Override
-    public void run() {
+    public void run(){
         try {
-            carregarCargas();
+            Log.e("XML:", carregarCargas());
+
+
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
-    public void carregarCargas() throws IOException, SAXException, ParserConfigurationException {
+
+    public String carregarCargas() throws IOException, ParserConfigurationException {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        
+        final HttpClient httpClient = new DefaultHttpClient();
+        final HttpPost postRequest = new HttpPost("http://www.termaco.com.br/cargasmobile/cargasmobiledev.php?wsdl");
+        //final StringEntity input = new StringEntity("<smbc><imei>123</imei>123<senha></senha><operacao>1</operacao></smbc>");
+        //input.setContentType("text/xml");
 
-        Document doc  = builder.parse("http://www.cinemark.com.br/mobile/xml/films/");
-        NodeList listDeFilms = doc.getElementsByTagName("films");
-        int qtdFilms = listDeFilms.getLength();
-        for(int x=0;x<qtdFilms;x++){
-
-            Node noFilme = listDeFilms.item(x);
-
-            if(noFilme.getNodeType()== Node.ELEMENT_NODE){
-                Element elementFilm = (Element) noFilme;
-                String id = elementFilm.getAttribute("id");
-                Log.e("ID",id);
-                NodeList listAttributFilm = elementFilm.getChildNodes();
-                int qtdAttribuiltFilms = listAttributFilm.getLength();
-                for (int i=0; i<qtdAttribuiltFilms;i++){
-                    Node noAttribuit = listAttributFilm.item(i);
-                    if(noAttribuit.getNodeType() == Node.ELEMENT_NODE){
-                        Element elementAttribut = (Element) noAttribuit;
-                        switch (elementAttribut.getTagName()){
-                            case "genre":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "parent-guide-rating":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "media-3d":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "media-35mm":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "trailer":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "top":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "first-print":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "runtime":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "screens":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "showtimes":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                            case "distributor":
-                                Log.e("",elementAttribut.getTextContent());
-                                break;
-                        }
-                    }
+                try {
+                    //postRequest.setEntity(input);
+                    HttpResponse response = httpClient.execute(postRequest);
+                    respostaServce = EntityUtils.toString(response.getEntity());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
-        }
+
+                return respostaServce;
+
 
     }
-    @Override
+
+
+
+        @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -202,8 +167,116 @@ public class GEOROTAS extends AppCompatActivity
 
 }
 
+//        try {
+// '<smbc>
+//      <imei>123</imei>
+//      <senha>123</senha>
+//      <operacao>1</operacao>
+//      <empcodigo>SPO</empcodigo>
+//      <codigo>820812</codigo>
+//      <tipo>1</tipo>
+//      <ordem>1</ordem>
+//      <status>P</status>
+//      <oco>25</oco>
+// </smbc>';
+
+//            TelephonyManager mngr = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+//            mngr.getDeviceId();
+
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder builder = factory.newDocumentBuilder();
+//            Document doc = builder.newDocument();
+//
+
+//            Element smbc = doc.createElement("smbc");
+//            doc.appendChild(smbc);
+//
+//            Element imei = doc.createElement("imei");
+//            imei.setTextContent(mngr.toString());
+//            doc.appendChild(imei);
+//
+//            Element senha = doc.createElement("senha");
+//            imei.setTextContent("123");
+//            doc.appendChild(senha);
+//
+//            Element operacao = doc.createElement("operacao");
+//            operacao.setTextContent("1");
+//            doc.appendChild(operacao);
+//
+//            OutputStream os = connection.getOutputStream();
+//
+//
+////                 Write your XML to the OutputStream (JAXB is used in this example)
+//                jaxbContext.createMarshaller().marshal(customer, os);
+//                os.flush();
+//                connection.getResponseCode();
+//                connection.disconnect();
 
 
+
+
+//            Element empcodigo = doc.createElement("empcodigo");
+//            empcodigo.setTextContent("SPO");
+//            doc.appendChild(empcodigo);
+//
+//            Element codigo = doc.createElement("codigo");
+//            codigo.setTextContent("820812");
+//            doc.appendChild(codigo);
+//
+//            Element tipo = doc.createElement("tipo");
+//            tipo.setTextContent("1");
+//            doc.appendChild(tipo);
+//
+//            Element ordem = doc.createElement("ordem");
+//            ordem.setTextContent("1");
+//            doc.appendChild(ordem);
+//
+//            Element status = doc.createElement("status");
+//            status.setTextContent("P");
+//            doc.appendChild(status);
+//
+//            Element oco = doc.createElement("oco");
+//            oco.setTextContent("25");
+//            doc.appendChild(oco);
+
+//            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+//            Transformer transformer = transformerFactory.newTransformer();
+//
+//            DOMSource documentoFonte = new DOMSource(doc);
+//
+//            StreamResult
+//
+
+
+
+//        } catch (ParserConfigurationException e) {
+//            Log.e("Erro Builder:",e.getMessage());
+////        }
+//        catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        } catch (ProtocolException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+
+
+//for(int x=0;x<qtdFilms;x++){
+//        Node noFilme = listDeFilms.item(x);
+//        if(noFilme.getNodeType()== Node.ELEMENT_NODE) {
+//        Element elementFilm = (Element) noFilme;
+//
+//        Log.e("text", elementFilm.getTextContent());
+//
+//
+//
+//        if(elementFilm.getTagName().equals("documentation")){
+//        text_viewlistaCargas.setText(elementFilm.getTextContent().toString());
+//        Log.e("mudei?",text_viewlistaCargas.getText().toString());
+//        }
+//        }
+//        }
 
 
 

@@ -16,22 +16,20 @@
     tools:context=".GEOROTAS">
 
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_gravity="center_horizontal" >
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/lista_de_cargas"
-        android:id="@+id/textView_ListaCargas"
-        android:layout_gravity="center" />
-
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listaDeCargas"
-        android:layout_weight="1" />
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/lista_de_cargas"
+            android:id="@+id/textView_ListaCargas"
+            android:layout_gravity="center" />
+    </ScrollView>
 
 
 </LinearLayout>
