@@ -7,5 +7,7 @@
     <string name="action_settings">Settings</string>
     <string name="nome_empresa">Termaco Logística</string>
     <string name="lista_de_cargas">Lista de Cargas</string>
+    <string name="codigoBarras">Código de Barras</string>
+    <string name="foto">Foto do Documento</string>
 
 </resources>

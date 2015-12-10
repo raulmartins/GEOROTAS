@@ -4,6 +4,10 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/novaCarga" android:icon="@android:drawable/ic_menu_add"
             android:title="Nova Carga" />
+        <item android:id="@+id/codigoBarras" android:icon="@android:drawable/ic_menu_camera"
+            android:title="@string/codigoBarras" />
+        <item android:id="@+id/foto" android:icon="@android:drawable/ic_menu_camera"
+            android:title="@string/foto" />
     </group>
 
     <item android:title="...">

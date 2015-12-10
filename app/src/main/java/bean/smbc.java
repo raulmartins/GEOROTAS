@@ -3,7 +3,7 @@ package bean;
 /**
  * Created by raullima on 20/11/15.
  */
-public class smbc {
+public class Smbc {
     private String imei;
     private String senha;
     private String operacao;
@@ -15,13 +15,13 @@ public class smbc {
     private String oco;
 
 
-    public smbc(String imei, String senha, String operacao) {
+    public Smbc(String imei, String senha, String operacao) {
         this.imei = imei;
         this.senha = senha;
         this.operacao = operacao;
     }
 
-    public smbc(String imei, String senha, String operacao, String empcodigo, String codigo, String tipo, String status, String ordem, String oco) {
+    public Smbc(String imei, String senha, String operacao, String empcodigo, String codigo, String tipo, String status, String ordem, String oco) {
         this.imei = imei;
         this.senha = senha;
         this.operacao = operacao;

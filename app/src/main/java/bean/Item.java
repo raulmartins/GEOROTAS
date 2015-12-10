@@ -14,16 +14,6 @@ public class Item {
     private String parada;
 
 
-//    <empcodigo>FOR</empcodigo>
-//           <codigo>1234</codigo>
-//           <tipo>1</tipo>
-//           <nome>Daniel</nome>
-//           <endereco>Rua D, 300</endereco>
-//           <ordem>1</ordem>
-//           <status>2</status>
-//           <parada>2</parada>
-
-
     public Item() {
     }
 

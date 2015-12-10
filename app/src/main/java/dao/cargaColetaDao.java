@@ -16,18 +16,21 @@ import java.util.regex.Pattern;
 
 import bean.Carga;
 import bean.Item;
-import bean.smbc;
+import bean.Smbc;
+
 
 /**
  * Created by raullima on 18/11/15.
  */
-public class cargaColetaDao {
+public class CargaColetaDao {
 
     private static final String METHOD_NAME = "smbc";
     private static final String NAMESPACE = "urn:server.smbc";
     private static final String URL = "http://www.termaco.com.br/cargasmobile/cargasmobiledev.php";
+    private Carga carga = new Carga();
+    private Item item = new Item();
 
-    public List<Carga> smbcRequest(smbc smbc) {
+    public List<Carga> smbcRequest(Smbc smbc) {
         //instanciando variaveis
         PropertyInfo req = new PropertyInfo();
         ArrayList<Carga> lista = new ArrayList<>();
@@ -39,7 +42,7 @@ public class cargaColetaDao {
         envelope.dotNet = true;
         //configuração das variaveis
 
-        req.setValue("<smbc><imei>" + smbc.getImei() + "</imei><senha>" + smbc.getSenha() + "</senha><operacao>" + smbc.getOperacao() + "</operacao></smbc>");
+        req.setValue("<Smbc><imei>" + smbc.getImei() + "</imei><senha>" + smbc.getSenha() + "</senha><operacao>" + smbc.getOperacao() + "</operacao></Smbc>");
         req.namespace = NAMESPACE;
         req.name = "smbc";
         req.type = String.class;
@@ -63,14 +66,12 @@ public class cargaColetaDao {
                 SoapObject respostas = (SoapObject)envelope.bodyIn;
                 for (int i = 0; i <respostas.getPropertyCount() ; i++) {
 
-                    Carga carga = new Carga();
-                    Item item = new Item();
 
                     carga.setOperacao(extrairTagXml(respostas.getProperty(i).toString(), "operacao"));
                     carga.setRetorno(extrairTagXml(respostas.getProperty(i).toString(), "retorno"));
                     carga.setDescricao(extrairTagXml(respostas.getProperty(i).toString(), "descricao"));
                     item.setEmpCodigo(extrairTagXml(respostas.getProperty(i).toString(), "empcodigo"));
-                    item.setCodigo(extrairTagXml(respostas.getProperty(i).toString(), "codigo"));
+                    item.setCodigo(extrairTagXml(respostas.getProperty(i).toString(), "codigo",item));
                     item.setEndereco(extrairTagXml(respostas.getProperty(i).toString(), "endereco"));
                     item.setNome(extrairTagXml(respostas.getProperty(i).toString(), "nome"));
                     item.setOrdem(extrairTagXml(respostas.getProperty(i).toString(), "ordem"));
@@ -96,9 +97,9 @@ public class cargaColetaDao {
     }
 
 
-    //meu lindo metodo para extrair as tags do xml respondido pelo servidor. Apanheiiii muito para fazer essa proximas 10 linhas de código para resolver a ausencia de uma função que api ksoup2 não implementou.
-    public static String extrairTagXml(String xml, String tag) {
-        String result = "";
+    //meus lindo metodos para extrair as tags do xml respondido pelo servidor. Apanheiiii muito para fazer essa proximas 10 linhas de código para resolver a ausencia de uma função que api ksoup2 não implementou.
+    public static String extrairTagXml(String xml, String tag, Item item) {
+
         String valor = "";
         String endTag = "</" + tag.substring(0);
 
@@ -108,20 +109,30 @@ public class cargaColetaDao {
         if (m.find()) {
             valor = m.group(1);
         }
+        //Gambirra para remover os erros gerados pelo empCodigo e Codigo para não ficar feio na hora de retornar os dados
         if (tag == "codigo") {
-            valor = valor.replace(">FOR</empcodigo><codigo>", "");
-            result = valor;
-        } else {
-            valor = valor.replace(">", "");
-            result = valor;
+            valor = valor.replace(">"+item.getEmpCodigo()+"</empcodigo><codigo>", "");
 
         }
-        return result;
+        return valor;
+    }
+    public static String extrairTagXml(String xml, String tag) {
+        String valor = "";
+        String endTag = "</" + tag.substring(0);
+
+        Pattern p = Pattern.compile(tag + "(.*?)" + endTag);
+        Matcher m = p.matcher(xml);
+
+        if (m.find()) {
+            valor = m.group(1);
+        }
+            valor = valor.replace(">", "");
+        return valor;
     }
 }
 //
 //        SoapObject carregarDados = new SoapObject(targetNamespace, SMBC);
-//        spSmbc.addProperty("&lt;imei&gt;", smbc.getImei());
-//        spSmbc.addProperty("&lt;senha&gt;", smbc.getSenha());
-//        spSmbc.addProperty("&lt;operacao&gt;", smbc.getOperacao());
+//        spSmbc.addProperty("&lt;imei&gt;", Smbc.getImei());
+//        spSmbc.addProperty("&lt;senha&gt;", Smbc.getSenha());
+//        spSmbc.addProperty("&lt;operacao&gt;", Smbc.getOperacao());
 //        carregarDados.addSoapObject(spSmbc);

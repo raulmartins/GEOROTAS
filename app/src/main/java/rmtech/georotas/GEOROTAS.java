@@ -27,8 +27,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.util.List;
 
 import bean.Carga;
-import bean.smbc;
-import dao.cargaColetaDao;
+import bean.Smbc;
+import dao.CargaColetaDao;
 
 public class GEOROTAS extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,20 +52,14 @@ public class GEOROTAS extends AppCompatActivity
         setContentView(R.layout.activity_georotas);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        if (Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        corrigirProblemaDeConexaoThread();
         listViewCargas = (ListView) findViewById(R.id.listView_cargas);
-
         FloatingActionButton novaCarga = (FloatingActionButton) findViewById(R.id.novaCarga);
         novaCarga.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                cargaColetaDao dao = new cargaColetaDao();
-                listaCargas = dao.smbcRequest(new smbc("123", "123", "1"));
+                CargaColetaDao dao = new CargaColetaDao();
+                listaCargas = dao.smbcRequest(new Smbc("123", "123", "1"));
                 Log.e("Retorno do WebService:", listaCargas.toString());
 
                 Snackbar.make(view, "Carregando Novas Cargas...", Snackbar.LENGTH_LONG)
@@ -75,9 +69,6 @@ public class GEOROTAS extends AppCompatActivity
                 adaptador.notifyDataSetChanged();
                 listViewCargas.setAdapter(adaptador);
                 registerForContextMenu(listViewCargas);
-
-
-
             }
         });
 
@@ -190,4 +181,13 @@ public class GEOROTAS extends AppCompatActivity
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+    public void corrigirProblemaDeConexaoThread(){
+
+        //permissão de request http na thread principal
+        if (Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+    }
 }
+
