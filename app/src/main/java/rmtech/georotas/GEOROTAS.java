@@ -25,15 +25,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.List;
 
-import bean.Carga;
+import bean.Item;
 import bean.Smbc;
 import dao.CargaColetaDao;
 
 public class GEOROTAS extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private ListView listViewCargas;
-    private ArrayAdapter<Carga> adaptador;
-    private List listaCargas;
+    private ArrayAdapter<Item> adaptador;
+    private List listaItens;
     private FloatingActionButton novaCarga;
 
     /**
@@ -55,13 +55,14 @@ public class GEOROTAS extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 CargaColetaDao dao = new CargaColetaDao();
-                listaCargas = dao.smbcRequest(new Smbc("123", "123", "1"));
-                Log.e("Retorno do WebService:", listaCargas.toString());
+                listaItens = dao.smbcRequest(new Smbc("123", "123", "1"));
+                Log.e("Retorno do WebService:", listaItens.toString());
 
                 Snackbar.make(view, "Carregando Novas Cargas...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                adaptador = new ArrayAdapter<Carga>(GEOROTAS.this, android.R.layout.simple_list_item_1, listaCargas);
+                int adaptadorLayout = android.R.layout.simple_list_item_1;
+                adaptador = new ArrayAdapter<Item>(GEOROTAS.this, adaptadorLayout, listaItens);
                 adaptador.notifyDataSetChanged();
                 listViewCargas.setAdapter(adaptador);
                 registerForContextMenu(listViewCargas);

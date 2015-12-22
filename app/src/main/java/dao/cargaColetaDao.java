@@ -1,18 +1,27 @@
 package dao;
 
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import bean.Carga;
 import bean.Item;
@@ -28,9 +37,10 @@ public class CargaColetaDao {
     private static final String NAMESPACE = "urn:server.smbc";
     private static final String URL = "http://www.termaco.com.br/cargasmobile/cargasmobiledev.php";
     private Carga carga = new Carga();
-    private Item item = new Item();
+    private Item item;
+    List<Item> listaItens = new ArrayList<>();
 
-    public List<Carga> smbcRequest(Smbc smbc) {
+    public List<Item> smbcRequest(Smbc smbc) {
         //instanciando variaveis
         PropertyInfo req = new PropertyInfo();
         ArrayList<Carga> lista = new ArrayList<>();
@@ -64,25 +74,74 @@ public class CargaColetaDao {
 
             else if (envelope.bodyIn instanceof SoapObject) {
                 SoapObject respostas = (SoapObject)envelope.bodyIn;
-                for (int i = 0; i <respostas.getPropertyCount() ; i++) {
 
+                Log.e("Resposta bodyin", respostas.toString());
+                Log.e("Resposta Envelope", envelope.getResponse().toString());
+                DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                InputSource is = new InputSource();
+                is.setCharacterStream(new StringReader(envelope.getResponse().toString()));
+                Document doc = db.parse(is);
+                NodeList nodes = doc.getElementsByTagName("smbc");
+                NodeList children = nodes.item(0).getChildNodes();
 
-                    carga.setOperacao(extrairTagXml(respostas.getProperty(i).toString(), "operacao"));
-                    carga.setRetorno(extrairTagXml(respostas.getProperty(i).toString(), "retorno"));
-                    carga.setDescricao(extrairTagXml(respostas.getProperty(i).toString(), "descricao"));
-                    item.setEmpCodigo(extrairTagXml(respostas.getProperty(i).toString(), "empcodigo"));
-                    item.setCodigo(extrairTagXml(respostas.getProperty(i).toString(), "codigo",item));
-                    item.setEndereco(extrairTagXml(respostas.getProperty(i).toString(), "endereco"));
-                    item.setNome(extrairTagXml(respostas.getProperty(i).toString(), "nome"));
-                    item.setOrdem(extrairTagXml(respostas.getProperty(i).toString(), "ordem"));
-                    item.setParada(extrairTagXml(respostas.getProperty(i).toString(), "parada"));
-                    item.setStatus(extrairTagXml(respostas.getProperty(i).toString(), "status"));
-                    item.setTipo(extrairTagXml(respostas.getProperty(i).toString(), "tipo"));
+                for (int i = 1; i < children.getLength()-2; i++) {
+                    NodeList grandson = children.item(i).getChildNodes();
+                    
+                    item = new Item();
+                    for (int j = 0; j <grandson.getLength() ; j++) {
 
-                    carga.setItem(item);
-                    lista.add(carga);
+                        switch (j){
+                            case 0:
+                                item.setEmpCodigo(grandson.item(j).getTextContent());
+                                break;
+                            case 1:
+                                item.setCodigo(grandson.item(j).getTextContent());
+                                break;
+                            case 2:
+                                item.setTipo(grandson.item(j).getTextContent());
+                                break;
+                            case 3:
+                                item.setNome(grandson.item(j).getTextContent());
+                                break;
+                            case 4:
+                                item.setEndereco(grandson.item(j).getTextContent());
+                                break;
+                            case 5:
+                                item.setOrdem(grandson.item(j).getTextContent());
+                                break;
+                            case 6:
+                                item.setStatus(grandson.item(j).getTextContent());
+                                break;
+                            case 7:
+                                item.setParada(grandson.item(j).getTextContent());
+                                break;
+
+                        }
+                    }
+                    listaItens.add(item);
                 }
-            }
+
+//                for (int i = 0; i <100 ; i++) {
+//
+//                    if(i == 0) {
+//                        carga.setOperacao(extrairTagXml(respostas.getProperty(i).toString(), "operacao"));
+//                        carga.setRetorno(extrairTagXml(respostas.getProperty(i).toString(), "retorno"));
+//                        carga.setDescricao(extrairTagXml(respostas.getProperty(i).toString(), "descricao"));
+//                    }
+//
+//                    item.setEmpCodigo(extrairTagXml(respostas.getProperty(i).toString(), "empcodigo"));
+//                    item.setCodigo(extrairTagXml(respostas.getProperty(i).toString(), "codigo", item));
+//                    item.setEndereco(extrairTagXml(respostas.getProperty(i).toString(), "endereco"));
+//                    item.setNome(extrairTagXml(respostas.getProperty(i).toString(), "nome"));
+//                    item.setOrdem(extrairTagXml(respostas.getProperty(i).toString(), "ordem"));
+//                    item.setParada(extrairTagXml(respostas.getProperty(i).toString(), "parada"));
+//                    item.setStatus(extrairTagXml(respostas.getProperty(i).toString(), "status"));
+//                    item.setTipo(extrairTagXml(respostas.getProperty(i).toString(), "tipo"));
+//                    carga.getListaItem().add(item);
+//
+//                    lista.add(carga);
+                }
+
 //             }
         } catch (XmlPullParserException e) {
             e.printStackTrace();
@@ -93,7 +152,7 @@ public class CargaColetaDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return lista;
+        return listaItens;
     }
 
 

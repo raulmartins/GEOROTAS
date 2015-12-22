@@ -1,5 +1,7 @@
 package bean;
 
+import java.util.List;
+
 /**
  * Created by raullima on 25/11/15.
  */
@@ -8,14 +10,14 @@ public class Carga {
     private String operacao;
     private String retorno;
     private String descricao;
-    private Item item;
+    private List<Item> listaItem;
 
     public Carga() {
     }
 
-    public Carga(String operacao, Item item, String retorno, String descricao) {
+    public Carga(String operacao, List item, String retorno, String descricao) {
         this.operacao = operacao;
-        this.item = item;
+        this.listaItem = item;
         this.retorno = retorno;
         this.descricao = descricao;
     }
@@ -44,12 +46,13 @@ public class Carga {
         this.operacao = operacao;
     }
 
-    public Item getItem() {
-        return item;
+
+    public List<Item> getListaItem() {
+        return listaItem;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
+    public void setListaItem(List<Item> listaItem) {
+        this.listaItem = listaItem;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class Carga {
                 "operacao='" + operacao + '\'' +
                 ", retorno='" + retorno + '\'' +
                 ", descricao='" + descricao + '\'' +
-                ", item=" + item.toString() +
+                ", listaItem=" + listaItem +
                 '}';
     }
 }
