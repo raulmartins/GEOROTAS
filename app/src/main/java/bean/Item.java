@@ -95,16 +95,15 @@ public class Item {
 
     @Override
     public String toString() {
-        return "Item{" +
-                "empCodigo='" + empCodigo + '\'' +
-                ", codigo='" + codigo + '\'' +
-                ", tipo='" + tipo + '\'' +
-                ", nome='" + nome + '\'' +
-                ", endereco='" + endereco + '\'' +
-                ", ordem='" + ordem + '\'' +
-                ", status='" + status + '\'' +
-                ", parada='" + parada + '\'' +
-                '}';
+        return
+                "   Código da Empresa:" + empCodigo + "       "+
+                "   Código:" + codigo + "\n"+
+                "   Tipo:" + tipo +"\n"+
+                "   Nome:" + nome +"\n"+
+                "   Endereço:" + endereco +"\n"+
+                "   Ordem:" + ordem +"\n"+
+                "   Status:" + status +"\n"+
+                "   Parada:" + parada ;
     }
 }
 

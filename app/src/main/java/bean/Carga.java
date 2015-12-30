@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by raullima on 25/11/15.
  */
+
 public class Carga {
 
     private String operacao;
@@ -46,7 +47,6 @@ public class Carga {
         this.operacao = operacao;
     }
 
-
     public List<Item> getListaItem() {
         return listaItem;
     }
@@ -57,12 +57,11 @@ public class Carga {
 
     @Override
     public String toString() {
-        return "Carga{" +
-                "operacao='" + operacao + '\'' +
-                ", retorno='" + retorno + '\'' +
-                ", descricao='" + descricao + '\'' +
-                ", listaItem=" + listaItem +
-                '}';
+        return
+                "  Operação:" + operacao + "\n"+
+                "  Retorno:" + retorno +  "\n"+
+                "  Descrição:" + descricao + "\n"+
+                "  Lista de Itens:" + listaItem ;
     }
 }
 

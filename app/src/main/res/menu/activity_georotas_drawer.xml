@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/novaCarga" android:icon="@android:drawable/ic_menu_add"
             android:title="Nova Carga" />
-        <item android:id="@+id/codigoBarras" android:icon="@android:drawable/ic_menu_camera"
+        <item android:id="@+id/codigoBarras"  android:icon="@mipmap/ic_codbar"
             android:title="@string/codigoBarras" />
         <item android:id="@+id/scanner" android:icon="@android:drawable/ic_menu_camera"
             android:title="@string/scanner" />

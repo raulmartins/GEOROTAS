@@ -23,18 +23,18 @@ import android.widget.ListView;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.util.List;
-
+import bean.Carga;
 import bean.Item;
 import bean.Smbc;
-import dao.CargaColetaDao;
+import dao.ItemDao;
+import helper.RegistroHelperCarregarCarga;
 
 public class GEOROTAS extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private ListView listViewCargas;
     private ArrayAdapter<Item> adaptador;
-    private List listaItens;
     private FloatingActionButton novaCarga;
+    private Carga carga;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -48,21 +48,32 @@ public class GEOROTAS extends AppCompatActivity
         setContentView(R.layout.activity_georotas);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        corrigirProblemaDeConexaoThread();
         listViewCargas = (ListView) findViewById(R.id.listView_cargas);
+        //corrigindo o bug
+        corrigirProblemaDeConexaoThread();
+        final ItemDao itemDao = new ItemDao(this);
+        //atualiza o banco com base no xml recebido do webservice
+        itemDao.carregarBaseDeDados();
+        //trazendo as informações do banco para listView
+        adaptador = new ArrayAdapter<Item>(GEOROTAS.this, android.R.layout.simple_list_item_1, itemDao.recuperarRegistrosCargaItens());
+        adaptador.notifyDataSetChanged();
+        listViewCargas.setAdapter(adaptador);
+        registerForContextMenu(listViewCargas);
+
+
         novaCarga = (FloatingActionButton) findViewById(R.id.novaCarga);
         novaCarga.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CargaColetaDao dao = new CargaColetaDao();
-                listaItens = dao.smbcRequest(new Smbc("123", "123", "1"));
-                Log.e("Retorno do WebService:", listaItens.toString());
+                carga = new Carga();
+                RegistroHelperCarregarCarga rhcc = new RegistroHelperCarregarCarga();
+                carga = rhcc.smbcRequest(new Smbc("123", "123", "1"));
+                itemDao.carregarBaseDeDados();
+                carga.setListaItem(itemDao.recuperarRegistrosCargaItens());
+                Log.e("Retorno do WebService:", carga.toString());
+                Snackbar.make(view, "Operação:"+carga.getOperacao()+" Retorno:"+carga.getRetorno()+"\n"+carga.getDescricao(), Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-                Snackbar.make(view, "Carregando Novas Cargas...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                int adaptadorLayout = android.R.layout.simple_list_item_1;
-                adaptador = new ArrayAdapter<Item>(GEOROTAS.this, adaptadorLayout, listaItens);
+                adaptador = new ArrayAdapter<Item>(GEOROTAS.this, android.R.layout.simple_list_item_1, carga.getListaItem());
                 adaptador.notifyDataSetChanged();
                 listViewCargas.setAdapter(adaptador);
                 registerForContextMenu(listViewCargas);
